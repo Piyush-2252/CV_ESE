@@ -1,0 +1,43 @@
+{
+  "content": [
+    {
+      "content": null,
+      "created": "2026-05-24T10:41:29.949676Z",
+      "format": null,
+      "hash": null,
+      "hash_algorithm": null,
+      "last_modified": "2026-05-24T10:41:29.949676Z",
+      "mimetype": null,
+      "name": "basophil",
+      "path": "dataset/basophil",
+      "size": null,
+      "type": "directory",
+      "writable": true
+    },
+    {
+      "content": null,
+      "created": "2026-05-24T10:41:30.264931Z",
+      "format": null,
+      "hash": null,
+      "hash_algorithm": null,
+      "last_modified": "2026-05-24T10:41:30.264931Z",
+      "mimetype": null,
+      "name": "erythroblast",
+      "path": "dataset/erythroblast",
+      "size": null,
+      "type": "directory",
+      "writable": true
+    }
+  ],
+  "created": "2026-05-24T10:41:29.949676Z",
+  "format": "json",
+  "hash": null,
+  "hash_algorithm": null,
+  "last_modified": "2026-05-24T10:41:29.949676Z",
+  "mimetype": null,
+  "name": "dataset",
+  "path": "dataset",
+  "size": null,
+  "type": "directory",
+  "writable": true
+}

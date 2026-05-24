@@ -1,0 +1,43 @@
+{
+    "content": [
+        {
+            "content": null,
+            "created": "2026-03-26T19:12:49.352943Z",
+            "format": null,
+            "hash": null,
+            "hash_algorithm": null,
+            "last_modified": "2026-03-26T19:12:20.823715Z",
+            "mimetype": "text/html",
+            "name": "CV_ESE_Exam.html",
+            "path": "CV_ESE_Exam.html",
+            "size": 6888,
+            "type": "file",
+            "writable": true
+        },
+        {
+            "content": null,
+            "created": "2026-03-26T19:12:49.353042Z",
+            "format": null,
+            "hash": null,
+            "hash_algorithm": null,
+            "last_modified": "2026-03-26T19:12:20.823715Z",
+            "mimetype": null,
+            "name": "dataset",
+            "path": "dataset",
+            "size": null,
+            "type": "directory",
+            "writable": true
+        }
+    ],
+    "created": "2026-03-26T19:12:49.354527Z",
+    "format": "json",
+    "hash": null,
+    "hash_algorithm": null,
+    "last_modified": "2026-03-26T19:12:49.354527Z",
+    "mimetype": null,
+    "name": "",
+    "path": "",
+    "size": null,
+    "type": "directory",
+    "writable": true
+}

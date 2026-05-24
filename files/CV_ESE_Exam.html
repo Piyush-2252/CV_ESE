@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Computer Vision ESE Examination - Cell Classification</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Source+Code+Pro:wght@400;600&family=DM+Sans:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --navy: #0f2a4a;
+            --teal: #0e7c7b;
+            --teal-light: #12a89d;
+            --amber: #e07b2e;
+            --violet: #5c3d8f;
+            --violet-light: #7b58b5;
+            --cream: #f7f3ee;
+            --white: #ffffff;
+            --gray-light: #eef2f7;
+            --gray-mid: #c8d0db;
+            --text: #1c2a3a;
+            --text-muted: #5a6a7a;
+            --red: #d32f2f;
+            --red-light: #ffebee;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            color: var(--text);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* ── Header Banner ── */
+        .banner {
+            background: var(--navy);
+            color: white;
+            padding: 48px 40px 36px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .banner::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: var(--violet);
+            opacity: 0.22;
+        }
+
+        .banner::after {
+            content: '';
+            position: absolute;
+            bottom: -80px;
+            left: 120px;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: var(--amber);
+            opacity: 0.12;
+        }
+
+        .banner-inner {
+            max-width: 900px;
+            margin: auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .course-tag {
+            display: inline-block;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 13px;
+            letter-spacing: 1.5px;
+            color: var(--teal-light);
+            background: rgba(14, 124, 123, 0.15);
+            border: 1px solid rgba(14, 124, 123, 0.35);
+            padding: 4px 12px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+
+        .banner h1 {
+            font-family: 'Merriweather', serif;
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 6px;
+        }
+
+        .banner h1 span {
+            color: var(--teal-light);
+        }
+
+        .banner .subtitle {
+            font-size: 15px;
+            color: var(--gray-mid);
+            font-weight: 400;
+        }
+
+        .meta-row {
+            display: flex;
+            gap: 28px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #b0bfcc;
+        }
+
+        .meta-item .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--amber);
+            flex-shrink: 0;
+        }
+
+        /* ── Marks badge on banner ── */
+        .marks-badge {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 8px;
+            padding: 6px 16px;
+            margin-top: 20px;
+        }
+
+        .marks-badge .big {
+            font-family: 'Merriweather', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--amber);
+        }
+
+        .marks-badge .label {
+            font-size: 13px;
+            color: #b0bfcc;
+        }
+
+        /* ── Container ── */
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 24px 60px;
+        }
+
+        /* ── Section heading ── */
+        .section-heading {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 40px 0 18px;
+        }
+
+        .section-heading .line {
+            flex: 1;
+            height: 1px;
+            background: var(--gray-mid);
+        }
+
+        .section-heading h2 {
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--navy);
+            white-space: nowrap;
+            letter-spacing: 0.4px;
+        }
+
+        /* ── Overview card ── */
+        .overview-card {
+            background: white;
+            border-left: 4px solid var(--violet);
+            border-radius: 0 10px 10px 0;
+            padding: 22px 26px;
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.8;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .overview-card strong {
+            color: var(--navy);
+        }
+
+        /* ── Warning card ── */
+        .warning-card {
+            background: var(--red-light);
+            border-left: 4px solid var(--red);
+            border-radius: 0 10px 10px 0;
+            padding: 22px 26px;
+            font-size: 15px;
+            color: var(--text);
+            line-height: 1.8;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            margin-top: 20px;
+        }
+
+        .warning-card h3 {
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--red);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .warning-card h3::before {
+            content: '⚠️';
+            font-size: 18px;
+        }
+
+        .warning-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .warning-card ul li {
+            padding-left: 24px;
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .warning-card ul li::before {
+            content: '•';
+            position: absolute;
+            left: 8px;
+            color: var(--red);
+            font-weight: bold;
+        }
+
+        /* ── Part label strip ── */
+        .part-strip {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 32px 0 14px;
+        }
+
+        .part-label {
+            font-family: 'Source Code Pro', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1.2px;
+            padding: 4px 14px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        .part-a .part-label {
+            background: rgba(92, 61, 143, 0.12);
+            color: var(--violet);
+            border: 1px solid rgba(92, 61, 143, 0.3);
+        }
+
+        .part-b .part-label {
+            background: rgba(14, 124, 123, 0.12);
+            color: var(--teal);
+            border: 1px solid rgba(14, 124, 123, 0.3);
+        }
+
+        .part-c .part-label {
+            background: rgba(224, 123, 46, 0.12);
+            color: var(--amber);
+            border: 1px solid rgba(224, 123, 46, 0.3);
+        }
+
+        .part-d .part-label {
+            background: rgba(14, 124, 123, 0.12);
+            color: var(--teal);
+            border: 1px solid rgba(14, 124, 123, 0.3);
+        }
+
+        .part-e .part-label {
+            background: rgba(92, 61, 143, 0.12);
+            color: var(--violet);
+            border: 1px solid rgba(92, 61, 143, 0.3);
+        }
+
+        .part-title {
+            font-family: 'Merriweather', serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--navy);
+            flex: 1;
+        }
+
+        .part-marks {
+            font-family: 'Source Code Pro', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        /* ── Tasks Grid ── */
+        .tasks-grid {
+            display: grid;
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .task-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            display: flex;
+            gap: 18px;
+        }
+
+        .task-number {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            background: var(--gray-light);
+            color: var(--navy);
+        }
+
+        .part-a .task-number {
+            background: rgba(92, 61, 143, 0.12);
+            color: var(--violet);
+        }
+
+        .part-b .task-number {
+            background: rgba(14, 124, 123, 0.12);
+            color: var(--teal);
+        }
+
+        .part-c .task-number {
+            background: rgba(224, 123, 46, 0.12);
+            color: var(--amber);
+        }
+
+        .part-d .task-number {
+            background: rgba(14, 124, 123, 0.12);
+            color: var(--teal);
+        }
+
+        .part-e .task-number {
+            background: rgba(224, 123, 46, 0.12);
+            color: var(--violet);
+        }
+
+        .task-body {
+            flex: 1;
+        }
+
+        .task-body h3 {
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .marks-pill {
+            font-family: 'Source Code Pro', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            background: var(--gray-light);
+            color: var(--text-muted);
+            padding: 2px 10px;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
+
+        .task-body p {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .task-body ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .task-body ul li {
+            font-size: 14px;
+            color: var(--text);
+            padding-left: 20px;
+            position: relative;
+            margin-bottom: 6px;
+        }
+
+        .task-body ul li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--violet);
+        }
+
+        .part-b .task-body ul li::before {
+            color: var(--teal);
+        }
+
+        .part-c .task-body ul li::before {
+            color: var(--amber);
+        }
+
+        .part-d .task-body ul li::before {
+            color: var(--teal);
+        }
+
+        .part-e .task-body ul li::before {
+            color: var(--violet);
+        }
+
+        .task-body ul li strong {
+            color: var(--navy);
+            font-weight: 600;
+        }
+
+        .task-body .sub-list {
+            margin-top: 8px;
+            padding-left: 16px;
+        }
+
+        .task-body .sub-list li::before {
+            content: '◦';
+        }
+
+        /* ── Code block examples ── */
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 13px;
+            padding: 16px;
+            border-radius: 6px;
+            margin-top: 12px;
+            overflow-x: auto;
+            line-height: 1.5;
+        }
+
+        .code-block .keyword {
+            color: #569cd6;
+        }
+
+        .code-block .string {
+            color: #ce9178;
+        }
+
+        .code-block .comment {
+            color: #6a9955;
+        }
+
+        /* ── Submission card ── */
+        .submission-card {
+            background: white;
+            border-radius: 10px;
+            padding: 26px 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .submission-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .submission-card ul li {
+            font-size: 15px;
+            color: var(--text);
+            padding-left: 24px;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .submission-card ul li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--teal);
+            font-weight: bold;
+        }
+
+        .submission-card ul li strong {
+            color: var(--navy);
+            font-weight: 600;
+        }
+
+        .submission-card .sub-list {
+            margin-top: 8px;
+            padding-left: 16px;
+        }
+
+        .submission-card .sub-list li::before {
+            content: '◦';
+            color: var(--teal);
+        }
+
+        .btn-submit {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 28px;
+            background: var(--teal);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.2s ease;
+        }
+
+        .btn-submit:hover {
+            background: var(--teal-light);
+        }
+
+        /* ── Evaluation row ── */
+        .eval-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .eval-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .eval-card .marks {
+            font-family: 'Merriweather', serif;
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .eval-card .marks span {
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        .eval-card p {
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .part-a-card .marks {
+            color: var(--violet);
+        }
+
+        .part-b-card .marks {
+            color: var(--teal);
+        }
+
+        .part-c-card .marks {
+            color: var(--amber);
+        }
+
+        .part-d-card .marks {
+            color: var(--teal);
+        }
+
+        .part-e-card .marks {
+            color: var(--violet);
+        }
+
+        /* ── Dataset structure ── */
+        .dataset-structure {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 13px;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 16px;
+            line-height: 1.8;
+        }
+
+        .dataset-structure .folder {
+            color: #dcdcaa;
+        }
+
+        .dataset-structure .file {
+            color: #ce9178;
+        }
+
+        .dataset-structure .indent {
+            display: inline-block;
+            width: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ── Banner ── -->
+    <div class="banner">
+        <div class="banner-inner">
+            <div class="course-tag">AI309E - ICV ESE EXAM</div>
+            <h1>
+                Blood Cell <span>Classification</span>
+            </h1>
+            <p class="subtitle">Basophil vs Erythoblast Classification using Computer Vision and Machine Learning</p>
+
+            <div class="marks-badge">
+                <span class="big">100</span>
+                <span class="label">Total Marks</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Body ── -->
+    <div class="container">
+
+        <!-- Overview -->
+        <div class="section-heading">
+            <h2>Overview</h2>
+            <div class="line"></div>
+        </div>
+
+        <div class="overview-card">
+            You are provided with a <strong>dataset</strong> containing images of two types of blood cells:
+            <strong>Basophils</strong> and <strong>Erythoblasts</strong>. Your task is to build a complete
+            <strong>machine learning pipeline</strong> for this binary classification.
+            <br><br>
+            The examination consists of Five parts:
+            <ul style="margin-top: 12px; padding-left: 20px;">
+                <li><strong>Part A</strong> — Image Preprocessing </li>
+                <li><strong>Part B</strong> — Feature Extraction</li>
+                <li><strong>Part C</strong> — ML Pipeline Development</li>
+                <li><strong>Part D</strong> — Comparitive Analysis</li>
+                <li><strong>Part E</strong> — Quiz </li>
+            </ul>
+            <br>
+            Each task must be in a <strong>separate, clearly labelled code cell</strong> with concise comments.
+            Display visualizations wherever applicable with proper labels and titles.
+        </div>
+
+        <!-- Warning Card -->
+        <div class="warning-card">
+            <h3>Important Warnings</h3>
+            <ul>
+                <li><strong>Missing Steps:</strong> Skipping any Part completely will result in
+                    deduction of marks.</li>
+                <li><strong>No Output Display:</strong> Failing to display outputs (images, plots, metrics) wherever
+                    necessary will result in deduction of marks .</li>
+                <li><strong>Incomplete Pipeline:</strong> The ML pipeline must include all four models (Logistic
+                    Regression, SVM, KNN, Random Forest) — missing any model will result in proportional mark
+                    deduction.</li>
+                <li><strong>Quiz Completion:</strong> The quiz is mandatory and must be attempted after completing the
+                    coding tasks.</li>
+            </ul>
+        </div>
+
+        <!-- Dataset Structure -->
+        <div class="section-heading">
+            <h2>Dataset Structure</h2>
+            <div class="line"></div>
+        </div>
+
+        <div class="overview-card">
+            The dataset is organized in the following folder structure:
+            <div class="dataset-structure">
+                <div><span class="folder">dataset/</span></div>
+                <div><span class="indent"></span>├── <span class="folder">basophil/</span></div>
+                <div><span class="indent"></span><span class="indent"></span>└── <span class="file">...</span></div>
+                <div><span class="indent"></span>└── <span class="folder">erythoblast/</span></div>
+                <div><span class="indent"></span><span class="indent"></span>└── <span class="file">...</span></div>
+            </div>
+            <br>
+            <strong>Note:</strong> Use proper file handling to load images from these folders.
+        </div>
+
+        <!-- ═══════════════ PART A ═══════════════ -->
+        <div class="section-heading">
+            <h2>Tasks to be Performed</h2>
+            <div class="line"></div>
+        </div>
+
+        <!-- Part A -->
+        <div class="part-strip part-a">
+            <span class="part-label">PART A</span>
+            <span class="part-title">Image Preprocessing</span>
+            <span class="part-marks">20 Marks</span>
+        </div>
+
+        <div class="tasks-grid part-a">
+
+            <div class="task-card">
+                <div class="task-number">1</div>
+                <div class="task-body">
+                    <h3>Load Dataset </h3>
+                    <p>Load the dataset from the folder structure.</p>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-number">2</div>
+                <div class="task-body">
+                    <h3>Resizing </h3>
+                    <p>Standardize image dimensions for consistent processing.</p>
+                    <ul>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-number">3</div>
+                <div class="task-body">
+                    <h3>Grayscale Conversion<span class="marks-pill">If Required</span></h3>
+                    <p>Convert color images to grayscale for simplified feature extraction.</p>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-number">4</div>
+                <div class="task-body">
+                    <h3>Histogram Equalization <span class="marks-pill">If Required</span></h3>
+                    <p>Enhance contrast using histogram equalization.</p>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-number">5</div>
+                <div class="task-body">
+                    <h3>Noise Removal / Smoothing <span class="marks-pill">If Required</span></h3>
+                    <p>Apply filtering techniques to reduce noise.</p>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-number">6</div>
+                <div class="task-body">
+                    <h3> Display Preprocessed Images </h3>
+                    <p>Display Images from both Classes, before and after preprocessing.</p>
+                </div>
+            </div>
+
+        </div><!-- /part-a tasks -->
+
+        <!-- Part B -->
+        <div class="part-strip part-b">
+            <span class="part-label">PART B</span>
+            <span class="part-title">Feature Extraction</span>
+            <span class="part-marks">20 Marks</span>
+        </div>
+
+        <div class="tasks-grid part-b">
+
+            <div class="task-card">
+                <div class="task-number">7</div>
+                <div class="task-body">
+                    <h3>Feature Vector Preparation</h3>
+                    <p>Extract shape, colour and texture-based features. Prepare feature vectors for all images in the
+                        dataset.</p>
+                </div>
+            </div>
+
+        </div><!-- /part-b tasks -->
+
+        <!-- Part C -->
+        <div class="part-strip part-c">
+            <span class="part-label">PART C</span>
+            <span class="part-title">Machine Learning Pipeline</span>
+            <span class="part-marks">20 Marks</span>
+        </div>
+
+        <div class="tasks-grid part-c">
+
+            <div class="task-card">
+                <div class="task-number">8</div>
+                <div class="task-body">
+                    <h3>Train-Test Split </h3>
+                    <p>Split the dataset into training and testing sets.</p>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-number">9</div>
+                <div class="task-body">
+                    <h3>Model Training — LR, SVM, KNN, RF </h3>
+                    <p>Train multiple classifiers.</p>
+                </div>
+            </div>
+
+        </div><!-- /part-c tasks -->
+
+        <!-- Part D -->
+        <div class="part-strip part-d">
+            <span class="part-label">PART D</span>
+            <span class="part-title">Comparitive Analysis</span>
+            <span class="part-marks">20 Marks</span>
+        </div>
+
+        <div class="tasks-grid part-d">
+
+            <div class="task-card">
+                <div class="task-number">10</div>
+                <div class="task-body">
+                    <h3>Model Comparison — Metrics Table </h3>
+                    <p>Compare all models based on performance metrics (Accuracy, Precision, Recall, F1-Score).</p>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-number">11</div>
+                <div class="task-body">
+                    <h3>Tune Hyperparameters<span class="marks-pill">If Required</span> </h3>
+                    <p>Optimize the hyperparameters of the best performing model.</p>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-number">12</div>
+                <div class="task-body">
+                    <h3>Learning Curve</h3>
+                    <p>Visualize learning curve to analyze best model performance.</p>
+                </div>
+            </div>
+
+        </div><!-- /part-d tasks -->
+
+        <!-- Part E - Quiz -->
+        <div class="part-strip part-e">
+            <span class="part-label">PART E</span>
+            <span class="part-title">Quiz</span>
+            <span class="part-marks">20 Marks</span>
+        </div>
+
+        <div class="overview-card">
+            After completing all the coding tasks above, you must attempt a <strong>20-mark quiz</strong>.
+            <br><br>
+            <strong>Note:</strong> The quiz link will be provided in the submission form. Complete all coding tasks
+            before attempting the quiz.
+        </div>
+
+        <!-- Submission -->
+        <div class="section-heading">
+            <h2>Submission Instructions</h2>
+            <div class="line"></div>
+        </div>
+
+        <div class="submission-card">
+            <ul>
+                <li>Submit a <strong>single Jupyter Notebook (.ipynb)</strong> containing all tasks.</li>
+                <li>Ensure all cell outputs are <strong>saved and visible</strong> before submitting.</li>
+                <li>
+                    Include the following at the <strong>top of your notebook</strong> in a markdown cell:
+                    <ul class="sub-list">
+                        <li>Full Name</li>
+                        <li>Roll Number</li>
+                        <li>Section / Batch</li>
+                        <li>Date of Examination</li>
+                    </ul>
+                </li>
+                <li>Use <strong>proper variable names</strong> and avoid hardcoding.</li>
+                <li>Complete the <strong>quiz</strong> after finishing the coding tasks.</li>
+                <li>Submit using the Google Form link below before the deadline.</li>
+            </ul>
+            <a class="btn-submit" href="https://forms.gle/qcpKjP5QByfTyoa76" target="_blank">Submit Your Notebook &
+                Attempt Quiz →</a>
+            <p style="margin-top: 12px; font-size: 13px; color: var(--text-muted);">
+            </p>
+        </div>
+
+    </div><!-- /container -->
+
+    <div style="text-align: center; padding: 40px 20px; background: var(--navy); color: var(--gray-mid);">
+        <p style="font-size: 14px;">Copyright © 2026 Piyush Agarwal. All rights reserved.</p>
+    </div>
+
+</body>
+
+</html>
